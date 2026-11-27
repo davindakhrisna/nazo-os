@@ -3,6 +3,11 @@ name = "nazo-os"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "nazo-os"
+test = false
+bench = false
+
 # OS bare-metal tidak memiliki stack unwinding, jadi panic harus langsung abort.
 [profile.dev]
 panic = "abort"
