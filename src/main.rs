@@ -4,11 +4,12 @@
 use core::panic::PanicInfo;
 use core::time::Duration;
 use uefi::prelude::*;
-use uefi::proto::console::text::Key;
+use uefi::proto::console::text::{Color, Key};
 
 #[entry]
 fn main() -> Status {
     uefi::helpers::init().unwrap();
+    init_console();
     uefi::println!("Hello from nazo-os!");
     uefi::println!("UEFI bootloader berhasil dijalankan.");
 
@@ -27,6 +28,17 @@ fn main() -> Status {
     // Tahan 5 detik agar pesan terbaca sebelum selesai.
     boot::stall(Duration::from_secs(5));
     Status::SUCCESS
+}
+
+fn init_console() {
+    uefi::system::with_stdout(|out| {
+        if let Some(best_mode) = out.modes().max_by_key(|m| m.columns() * m.rows()) {
+            let _ = out.set_mode(best_mode);
+        }
+        let _ = out.set_color(Color::White, Color::Black);
+        let _ = out.clear();
+        let _ = out.enable_cursor(true);
+    });
 }
 fn read_key() -> Key {
     uefi::system::with_stdin(|stdin| loop {
