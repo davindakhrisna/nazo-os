@@ -13,9 +13,7 @@ fn main() -> Status {
     uefi::println!("Hello from nazo-os!");
     uefi::println!("UEFI bootloader berhasil dijalankan.");
 
-
-
-    let mut buf = [0u8;64];
+    let mut buf = [0u8; 64];
 
     uefi::print!("nazo> ");
 
@@ -47,42 +45,38 @@ fn read_key() -> Key {
         }
 
         if let Ok(event) = stdin.wait_for_key_event() {
-            let _ = boot::wait_for_event(&mut [event]);
+            let _ = boot::wait_for_event(&[event]);
         }
     })
 }
 
-fn read_line(buf: &mut [u8])-> usize{
-    let mut len= 0;
+fn read_line(buf: &mut [u8]) -> usize {
+    let mut len = 0;
 
     loop {
-        if let Key::Printable(ch) = read_key(){
-            match char::from(ch){
-                '\r'|'\n' =>{
+        if let Key::Printable(ch) = read_key() {
+            match char::from(ch) {
+                '\r' | '\n' => {
                     uefi::println!();
                     return len;
                 }
-                '\x08'=>{
-                if len > 0 {
-                   len -= 1;
+                '\x08' => {
+                    if len > 0 {
+                        len -= 1;
 
-                   uefi::print!("\x08 \x08");
+                        uefi::print!("\x08 \x08");
+                    }
                 }
-            }
 
-            c if c.is_ascii_graphic() || c == ' ' =>{
-                if  len < buf.len() {
+                c if (c.is_ascii_graphic() || c == ' ') && len < buf.len() => {
                     buf[len] = c as u8;
                     len += 1;
 
-                    uefi::print!("{}",c);
+                    uefi::print!("{}", c);
                 }
-            } 
 
-            _ => {}
+                _ => {}
             }
-
-            
         }
     }
 }
